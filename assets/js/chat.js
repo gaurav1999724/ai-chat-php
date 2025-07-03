@@ -168,10 +168,6 @@ async function sendMessage() {
         
         // Add AI response to chat
         addMessageToChat('ai', response);
-        
-        // Save to database
-        saveToDatabase('user', message);
-        saveToDatabase('ai', response);
 
     } catch (error) {
         console.error('Error sending message:', error);
@@ -268,24 +264,7 @@ function addMessageToChat(sender, message) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Save message to database
-async function saveToDatabase(sender, message) {
-    try {
-        await fetch('api/save_message.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                session_id: currentSessionId,
-                sender: sender,
-                message: message
-            })
-        });
-    } catch (error) {
-        console.error('Error saving to database:', error);
-    }
-}
+
 
 // Show/hide loading indicator
 function showLoadingIndicator(show) {

@@ -50,13 +50,11 @@ chmod +x deploy.sh
 sudo yum update -y
 
 # Install packages
-sudo yum install -y httpd php php-mysqlnd php-json php-curl php-mbstring php-xml php-zip mysql mysql-server git unzip
+sudo yum install -y httpd php php-json php-curl php-mbstring php-xml php-zip git unzip
 
 # Start services
 sudo systemctl start httpd
 sudo systemctl enable httpd
-sudo systemctl start mysqld
-sudo systemctl enable mysqld
 ```
 
 ### 2. Install Composer
@@ -66,25 +64,7 @@ curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 ```
 
-### 3. Setup Database
-
-```bash
-# Secure MySQL
-sudo mysql_secure_installation
-
-# Create database and user
-sudo mysql -u root -p
-```
-
-```sql
-CREATE DATABASE ai_chat CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'ai_chat_user'@'localhost' IDENTIFIED BY 'your_secure_password';
-GRANT ALL PRIVILEGES ON ai_chat.* TO 'ai_chat_user'@'localhost';
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-### 4. Deploy Application
+### 3. Deploy Application
 
 ```bash
 # Copy files to web directory
@@ -112,21 +92,11 @@ nano .env
 
 Update the following in `.env`:
 ```env
-DB_HOST=localhost
-DB_NAME=ai_chat
-DB_USER=ai_chat_user
-DB_PASS=your_secure_password
 RAPIDAPI_KEY=your_rapidapi_key
 APP_ENV=production
 ```
 
-### 6. Import Database Schema
-
-```bash
-sudo mysql ai_chat < database/ai_chat.sql
-```
-
-### 7. Configure Apache
+### 4. Configure Apache
 
 ```bash
 sudo nano /etc/httpd/conf.d/chatgpt.conf
@@ -148,11 +118,10 @@ Add:
 </VirtualHost>
 ```
 
-### 8. Restart Services
+### 5. Restart Services
 
 ```bash
 sudo systemctl restart httpd
-sudo systemctl restart mysqld
 ```
 
 ## SSL Certificate (Optional but Recommended)
@@ -179,26 +148,13 @@ sudo crontab -e
 # Check Apache status
 sudo systemctl status httpd
 
-# Check MySQL status
-sudo systemctl status mysqld
+
 
 # Check application logs
 sudo tail -f /var/www/html/chatgpt/logs/api_interactions.log
 ```
 
-### 2. Backup Database
 
-```bash
-# Create backup script
-sudo nano /usr/local/bin/backup-db.sh
-```
-
-```bash
-#!/bin/bash
-DATE=$(date +%Y%m%d_%H%M%S)
-mysqldump -u ai_chat_user -p ai_chat > /backup/ai_chat_$DATE.sql
-find /backup -name "*.sql" -mtime +7 -delete
-```
 
 ### 3. Set up Log Rotation
 
@@ -220,12 +176,9 @@ sudo nano /etc/logrotate.d/chatgpt
 
 ## Security Checklist
 
-- [ ] Change default MySQL root password
-- [ ] Use strong passwords for database users
 - [ ] Configure firewall (Security Groups)
 - [ ] Enable SSL/HTTPS
 - [ ] Keep system packages updated
-- [ ] Regular database backups
 - [ ] Monitor application logs
 - [ ] Use environment variables for sensitive data
 
@@ -234,9 +187,8 @@ sudo nano /etc/logrotate.d/chatgpt
 ### Common Issues
 
 1. **Permission Denied**: Check file permissions
-2. **Database Connection Failed**: Verify MySQL credentials
-3. **API Errors**: Check RapidAPI key and subscription
-4. **500 Internal Server Error**: Check Apache error logs
+2. **API Errors**: Check RapidAPI key and subscription
+3. **500 Internal Server Error**: Check Apache error logs
 
 ### Useful Commands
 
@@ -247,14 +199,11 @@ sudo tail -f /var/log/httpd/error_log
 # Check application logs
 sudo tail -f /var/www/html/chatgpt/logs/api_interactions.log
 
-# Test database connection
-mysql -u ai_chat_user -p ai_chat
-
 # Check PHP configuration
-php -m | grep -E "(curl|mysql|json)"
+php -m | grep -E "(curl|json)"
 
 # Restart all services
-sudo systemctl restart httpd mysqld
+sudo systemctl restart httpd
 ```
 
 ## Performance Optimization
@@ -264,10 +213,7 @@ sudo systemctl restart httpd mysqld
    sudo yum install php-opcache
    ```
 
-2. **Configure MySQL**:
-   ```bash
-   sudo nano /etc/my.cnf
-   ```
+
 
 3. **Enable Apache Compression**:
    Already configured in `.htaccess`
@@ -279,5 +225,4 @@ sudo systemctl restart httpd mysqld
 For issues or questions:
 1. Check the logs first
 2. Verify all services are running
-3. Test database connectivity
-4. Check API key validity 
+3. Check API key validity 

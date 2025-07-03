@@ -5,8 +5,8 @@
  * This script helps you set up the AI Chat application by:
  * 1. Checking system requirements
  * 2. Creating necessary directories
- * 3. Testing database connection
- * 4. Initializing database tables
+ * 3. Testing API configuration
+ * 4. Setting up file permissions
  */
 
 // Enable error reporting for setup
@@ -55,7 +55,7 @@ echo "</div>";
 // Step 2: Check Required Extensions
 echo "<div class='step'>";
 echo "<h2>Step 2: Required Extensions</h2>";
-$requiredExtensions = ['curl', 'pdo', 'pdo_mysql', 'json'];
+$requiredExtensions = ['curl', 'json'];
 $missingExtensions = [];
 
 foreach ($requiredExtensions as $ext) {
@@ -104,42 +104,9 @@ if (!file_exists($logFile)) {
 }
 echo "</div>";
 
-// Step 4: Database Configuration
+// Step 4: API Configuration
 echo "<div class='step'>";
-echo "<h2>Step 4: Database Configuration</h2>";
-
-// Check if database config exists
-if (file_exists('config/database.php')) {
-    echo "<p class='success'>✅ Database configuration file exists</p>";
-    
-    // Try to include and test connection
-    try {
-        require_once 'config/database.php';
-        
-        // Test database connection
-        $pdo = getDatabaseConnection();
-        echo "<p class='success'>✅ Database connection successful</p>";
-        
-        // Test table creation
-        if (initializeDatabase()) {
-            echo "<p class='success'>✅ Database tables initialized successfully</p>";
-        } else {
-            echo "<p class='error'>❌ Failed to initialize database tables</p>";
-        }
-        
-    } catch (Exception $e) {
-        echo "<p class='error'>❌ Database connection failed: " . htmlspecialchars($e->getMessage()) . "</p>";
-        echo "<p class='info'>Please check your database credentials in <code>config/database.php</code></p>";
-    }
-} else {
-    echo "<p class='error'>❌ Database configuration file not found</p>";
-    echo "<p class='info'>Please create <code>config/database.php</code> with your database settings</p>";
-}
-echo "</div>";
-
-// Step 5: API Configuration
-echo "<div class='step'>";
-echo "<h2>Step 5: API Configuration</h2>";
+echo "<h2>Step 4: API Configuration</h2>";
 if (file_exists('api/chatgpt.php')) {
     echo "<p class='success'>✅ ChatGPT API handler exists</p>";
     echo "<p class='info'>The application is pre-configured with a RapidAPI key</p>";
@@ -149,9 +116,11 @@ if (file_exists('api/chatgpt.php')) {
 }
 echo "</div>";
 
-// Step 6: File Permissions
+
+
+// Step 5: File Permissions
 echo "<div class='step'>";
-echo "<h2>Step 6: File Permissions</h2>";
+echo "<h2>Step 5: File Permissions</h2>";
 $writableFiles = ['logs/', 'logs/api_interactions.log'];
 foreach ($writableFiles as $file) {
     if (is_writable($file)) {
@@ -163,9 +132,9 @@ foreach ($writableFiles as $file) {
 }
 echo "</div>";
 
-// Step 7: Browser Requirements
+// Step 6: Browser Requirements
 echo "<div class='step'>";
-echo "<h2>Step 7: Browser Requirements</h2>";
+echo "<h2>Step 6: Browser Requirements</h2>";
 echo "<p class='info'>For the best experience, use a modern browser with Web Speech API support:</p>";
 echo "<ul>";
 echo "<li>Chrome 66+ (recommended)</li>";
@@ -182,7 +151,6 @@ echo "<h2>🎉 Setup Complete!</h2>";
 echo "<p>Your AI Chat application is ready to use!</p>";
 echo "<p><strong>Next steps:</strong></p>";
 echo "<ol>";
-echo "<li>Import the database schema: <code>database/ai_chat.sql</code></li>";
 echo "<li>Access the application: <a href='index.php' class='btn'>Open Chat</a></li>";
 echo "<li>Test the speech-to-text functionality</li>";
 echo "<li>Customize the UI and functionality as needed</li>";
@@ -195,7 +163,6 @@ echo "<h2>🔧 Troubleshooting</h2>";
 echo "<p><strong>Common Issues:</strong></p>";
 echo "<ul>";
 echo "<li><strong>Speech not working:</strong> Use HTTPS or localhost, allow microphone permissions</li>";
-echo "<li><strong>Database errors:</strong> Check MySQL service is running and credentials are correct</li>";
 echo "<li><strong>API errors:</strong> Verify RapidAPI key and subscription status</li>";
 echo "<li><strong>Permission errors:</strong> Ensure logs directory is writable</li>";
 echo "</ul>";

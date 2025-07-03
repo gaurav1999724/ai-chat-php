@@ -11,14 +11,12 @@ sudo yum update -y
 
 # Install required packages
 echo "🔧 Installing LAMP stack..."
-sudo yum install -y httpd php php-mysqlnd php-json php-curl php-mbstring php-xml php-zip mysql mysql-server git unzip
+sudo yum install -y httpd php php-json php-curl php-mbstring php-xml php-zip git unzip
 
 # Start and enable services
 echo "⚡ Starting services..."
 sudo systemctl start httpd
 sudo systemctl enable httpd
-sudo systemctl start mysqld
-sudo systemctl enable mysqld
 
 # Install Composer
 echo "📦 Installing Composer..."
@@ -27,16 +25,7 @@ if [ ! -f /usr/local/bin/composer ]; then
     sudo mv composer.phar /usr/local/bin/composer
 fi
 
-# Create database
-echo "🗄️ Setting up database..."
-sudo mysql -e "CREATE DATABASE IF NOT EXISTS ai_chat CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-sudo mysql -e "CREATE USER IF NOT EXISTS 'ai_chat_user'@'localhost' IDENTIFIED BY 'your_secure_password';"
-sudo mysql -e "GRANT ALL PRIVILEGES ON ai_chat.* TO 'ai_chat_user'@'localhost';"
-sudo mysql -e "FLUSH PRIVILEGES;"
 
-# Import database schema
-echo "📋 Importing database schema..."
-sudo mysql ai_chat < database/ai_chat.sql
 
 # Set up application directory
 echo "📁 Setting up application..."
