@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Generation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .generated-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin: 10px 0;
+        }
+        .loading {
+            color: #007bff;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Image Generation API Test</h1>
+        <p>This page tests the image generation functionality with the new response format.</p>
+        
+        <button class="test-button" onclick="testImageGeneration()">Test Image Generation</button>
+        
+        <div id="result"></div>
+        <div id="imageContainer"></div>
+    </div>
+
+    <script>
+        async function testImageGeneration() {
+            const resultDiv = document.getElementById('result');
+            const imageContainer = document.getElementById('imageContainer');
+            
+            resultDiv.innerHTML = '<div class="loading">Generating image...</div>';
+            imageContainer.innerHTML = '';
+            
+            try {
+                const response = await fetch('api/generate_image.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: 'a beautiful sunset over mountains',
+                        width: 512,
+                        height: 512,
+                        steps: 1,
+                        session_id: 'test_' + Date.now()
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const responseText = await response.text();
+                console.log('Raw response:', responseText);
+                
+                const data = JSON.parse(responseText);
+                console.log('Parsed data:', data);
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Test the new response format
+                const imageData = data.image_data;
+                let imageUrl = null;
+                
+                if (imageData.generated_image) {
+                    imageUrl = imageData.generated_image;
+                } else if (imageData.url) {
+                    imageUrl = imageData.url;
+                } else if (imageData.image) {
+                    imageUrl = imageData.image;
+                } else if (imageData.data && imageData.data.url) {
+                    imageUrl = imageData.data.url;
+                }
+
+                if (imageUrl) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Success!</h3>
+                            <p><strong>Prompt:</strong> ${data.prompt}</p>
+                            <p><strong>Image URL:</strong> ${imageUrl}</p>
+                            <p><strong>Response Format:</strong> ${Object.keys(imageData).join(', ')}</p>
+                        </div>
+                    `;
+                    
+                    // Display the image
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = data.prompt;
+                    img.className = 'generated-image';
+                    img.onload = () => {
+                        console.log('Image loaded successfully');
+                    };
+                    img.onerror = () => {
+                        console.error('Error loading image');
+                        imageContainer.innerHTML = '<div class="error">Error loading image from URL</div>';
+                    };
+                    imageContainer.appendChild(img);
+                } else {
+                    throw new Error('No image URL found in response');
+                }
+
+            } catch (error) {
+                console.error('Test failed:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Test Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 

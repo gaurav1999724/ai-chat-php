@@ -41,7 +41,7 @@ error_reporting(E_ALL);
                 </div>
                 <div class="message-content">
                     <div class="message-text">
-                        Hello! I'm your AI assistant. You can type your message or use the microphone to speak. How can I help you today?
+                        Hello! I'm your AI assistant. You can type your message or use the microphone to speak. How can I help you today?<br><br>
                     </div>
                     <div class="message-time">Just now</div>
                 </div>
@@ -52,6 +52,11 @@ error_reporting(E_ALL);
         <div class="chat-input-container">
             <div class="input-wrapper">
                 <div class="text-input-container">
+                    <div class="input-actions-left">
+                        <button class="generate-image-btn" onclick="showImagePrompt()" title="Generate Image">
+                            <i class="fas fa-image"></i>
+                        </button>
+                    </div>
                     <textarea 
                         id="messageInput" 
                         placeholder="Type your message here..." 
